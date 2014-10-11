@@ -5,7 +5,8 @@ CREATE TABLE Beacon (
 
 CREATE TABLE User (
     id INT PRIMARY KEY, 
-    name VARCHAR(32) NOT NULL
+    name VARCHAR(32) NOT NULL,
+	email VARCHAR(128) 
 );
 
 CREATE TABLE Message (
