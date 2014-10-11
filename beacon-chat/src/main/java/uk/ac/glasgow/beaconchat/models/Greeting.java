@@ -1,5 +1,7 @@
 package uk.ac.glasgow.beaconchat.models;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Greeting {
 	private long id;
     private String content;

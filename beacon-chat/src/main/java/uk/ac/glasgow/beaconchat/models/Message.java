@@ -2,6 +2,9 @@ package uk.ac.glasgow.beaconchat.models;
 
 import org.joda.time.DateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Message {
 
 	private int id;

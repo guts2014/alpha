@@ -1,23 +1,38 @@
 package uk.ac.glasgow.beaconchat.models;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
-	private int id;
+	private String deviceID;
 	private String name;
 	private String email;
 	public User() {
 		super();
 	}
-	public User(int id, String name, String email) {
+	public User(String deviceID, String name, String email) {
 		super();
-		this.id = id;
+		this.deviceID = deviceID;
 		this.name = name;
 		this.email = email;
 	}
-	public int getId() {
-		return id;
+	public User(String name, String email) {
+		super();
+		this.deviceID = "";
+		this.name = name;
+		this.email = email;
 	}
-	public void setId(int id) {
-		this.id = id;
+	
+	public User(String namel) {
+		super();
+		this.deviceID = "";
+		this.name = name;
+		this.email = "";
+	}
+	public String getDeviceID() {
+		return deviceID;
+	}
+	public void setDeviceID(String deviceID) {
+		this.deviceID = deviceID;
 	}
 	public String getName() {
 		return name;

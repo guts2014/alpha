@@ -7,7 +7,7 @@ import uk.ac.glasgow.beaconchat.models.User;
 
 public class UserRowMapper {
 	public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-		User msg = new User(rs.getInt("id"),
+		User msg = new User(rs.getString("deviceID"),
 				rs.getString("name"), rs.getString("email"));
 		return msg;
 	}
