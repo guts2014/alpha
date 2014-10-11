@@ -36,7 +36,7 @@ public class GreetingController {
 			@RequestParam(value = "name", required = false, defaultValue = "World") String name) {
 		/*return new Greeting(counter.incrementAndGet(), String.format(template,
 				name));*/
-		String sql = "SELECT text FROM Message WHERE id = ?";
+		String sql = "SELECT text, id, time FROM Message WHERE id = ?";
 		System.out.println(sql);
 		Message msg = (Message) jdbcTemplate.queryForObject(sql, new Object[] { 1 }, new MessageRowMapper());
 		return new Greeting(counter.incrementAndGet(), msg.getText());

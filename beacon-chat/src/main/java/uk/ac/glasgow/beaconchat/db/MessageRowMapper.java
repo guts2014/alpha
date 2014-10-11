@@ -12,7 +12,7 @@ import uk.ac.glasgow.beaconchat.models.Message;
 public class MessageRowMapper implements RowMapper	{
 		public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
 			Message msg = new Message(rs.getInt("id"),
-					rs.getString("text"), new DateTime(rs.getDate("timestamp")));
+					rs.getString("text"), new DateTime(rs.getDate("time")));
 			return msg;
 		}
 }
