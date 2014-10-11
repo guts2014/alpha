@@ -1,0 +1,89 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.guhack.alpha.beaconchat.ChatroomActivity"
+    android:background="@color/textbody">
+
+    <LinearLayout
+        android:id="@+id/chat_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/greenbody"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:weightSum="6">
+
+        <ImageView
+            android:id="@+id/chatProfile"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_launcher" />
+
+        <TextView
+            android:id="@+id/chatroom_list_username"
+            android:layout_weight="3"
+            android:layout_width="0dp"
+            android:text="George Square"
+            android:singleLine="true"
+
+            android:layout_height="wrap_content"
+            android:textColor="@color/textbody"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/chat_info_button"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:src="@android:drawable/ic_menu_info_details"
+            android:background="@drawable/selector_green"/>
+
+        <ImageView
+            android:id="@+id/leave_chat_button"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:background="@drawable/selector_green"
+            android:clickable="true"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:gravity="center_vertical"
+        android:background="@color/greenbody"
+        android:id="@+id/chat_bottom_layout"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="5">
+        <EditText
+            android:gravity="top"
+            android:layout_weight="4"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:textSize="12sp"
+            android:textColor="@color/textbody"/>
+        <TextView
+            android:clickable="true"
+            android:gravity="center"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:text="SEND"
+            android:background="@drawable/selector_green"
+            android:textColor="@color/textbody"/>
+        </LinearLayout>
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/chat_header"
+        android:layout_above="@+id/chat_bottom_layout"/>
+
+</RelativeLayout>

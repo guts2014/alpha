@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/user_top_bar"
+    android:layout_width="match_parent"
+    android:layout_height="80sp"
+    android:layout_gravity="top"
+    android:background="@drawable/selector_white"
+    android:orientation="horizontal"
+    android:padding="10dp">
+    <!--color of this block should be white on light grey background, i just changed it to dark
+    grey for better visibility-->
+
+    <ImageView
+        android:layout_width="50sp"
+        android:layout_height="50sp"
+        android:id="@+id/userProfilePicture"
+        android:src="@drawable/icn_beacon"/>
+
+    <TextView
+        android:layout_marginLeft="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_toRightOf="@id/userProfilePicture"
+        android:id="@+id/chatroom_description"
+        android:layout_alignBottom="@+id/userProfilePicture"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:textColor="@color/blackbody"/>
+</RelativeLayout>
