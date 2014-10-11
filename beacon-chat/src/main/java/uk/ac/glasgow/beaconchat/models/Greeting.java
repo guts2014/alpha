@@ -1,4 +1,4 @@
-package uk.ac.glasgow.beaconchat;
+package uk.ac.glasgow.beaconchat.models;
 
 public class Greeting {
 	private long id;
