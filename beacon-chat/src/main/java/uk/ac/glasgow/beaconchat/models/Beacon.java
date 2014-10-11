@@ -14,6 +14,10 @@ public class Beacon {
 		this.id = id;
 		this.name = name;
 	}
+	public Beacon(String id) {
+		super();
+		this.id = id;
+	}
 	public String getId() {
 		return id;
 	}
