@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class GreetingController {
-	ObjectMapper mapper = new ObjectMapper(); 
+	private ObjectMapper mapper = new ObjectMapper(); 
 	private static final String template = "Hello, %s!";
 	private final AtomicLong counter = new AtomicLong();
 	
@@ -51,6 +51,8 @@ public class GreetingController {
 	
 	@RequestMapping(value = "/greetback", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Greeting greetBack(@RequestBody Greeting greet) throws JsonParseException, JsonMappingException, IOException {
+		String sql = "INSERT INTO Message (text) VALUES (?)";
+		jdbcTemplate.update(sql, new Object[] {greet.getContent()});
 		return greet;
 	}
 }
