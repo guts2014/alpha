@@ -10,8 +10,12 @@ import android.widget.TextView;
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.Utils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 
 /**
@@ -21,60 +25,72 @@ import java.util.Collection;
  */
 public class ChatroomListAdapter extends BaseAdapter {
 
-  private ArrayList<Beacon> beacons;
-  private LayoutInflater inflater;
+    private ArrayList<Chatroom> beacons;
+    private LayoutInflater inflater;
 
-  public ChatroomListAdapter(Context context) {
-    this.inflater = LayoutInflater.from(context);
-    this.beacons = new ArrayList<Beacon>();
-  }
-
-  public void replaceWith(Collection<Beacon> newBeacons) {
-    this.beacons.clear();
-    this.beacons.addAll(newBeacons);
-    notifyDataSetChanged();
-  }
-
-  @Override
-  public int getCount() {
-    return beacons.size();
-  }
-
-  @Override
-  public Beacon getItem(int position) {
-    return beacons.get(position);
-  }
-
-  @Override
-  public long getItemId(int position) {
-    return position;
-  }
-
-  @Override
-  public View getView(int position, View view, ViewGroup parent) {
-    view = inflateIfRequired(view, position, parent);
-    bind(getItem(position), view);
-    return view;
-  }
-
-  private void bind(Beacon beacon, View view) {
-    ViewHolder holder = (ViewHolder) view.getTag();
-    holder.chatroomDescription.setText("Hackathon JP Morgan Room");//String.format("MAC: %s (%.2fm)", beacon.getMacAddress(), Utils.computeAccuracy(beacon)));
-  }
-
-  private View inflateIfRequired(View view, int position, ViewGroup parent) {
-    if (view == null) {
-      view = inflater.inflate(R.layout.chatroom_row, parent, false);
-      view.setTag(new ViewHolder(view));
+    public ChatroomListAdapter(Context context) {
+        this.inflater = LayoutInflater.from(context);
+        this.beacons = new ArrayList<Chatroom>();
     }
-    return view;
-  }
 
-  static class ViewHolder {
-    final TextView chatroomDescription;
+    public void replaceWith(JSONObject newBeacons) {
+        this.beacons.clear();
 
-    ViewHolder(View view) {
-      chatroomDescription = (TextView) view.findViewById(R.id.chatroom_description);
+        Iterator iterator = newBeacons.keys();
+        while (iterator.hasNext()){
+            String key = (String) iterator.next();
+            String name = "Notfound";
+            try {
+
+                name = ((JSONObject) newBeacons.get(key)).get("name").toString();
+            } catch (JSONException e){
+                //hello
+            }
+            beacons.add(new Chatroom(key, name));
+        }
+        notifyDataSetChanged();
     }
-  }
+
+    @Override
+    public int getCount() {
+        return beacons.size();
+    }
+
+    @Override
+    public Chatroom getItem(int position) {
+        return beacons.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(int position, View view, ViewGroup parent) {
+        view = inflateIfRequired(view, position, parent);
+        bind(getItem(position), view);
+        return view;
+    }
+
+    private void bind(Chatroom beacon, View view) {
+        ViewHolder holder = (ViewHolder) view.getTag();
+        holder.chatroomDescription.setText(beacon.getName());//String.format("MAC: %s (%.2fm)", beacon.getMacAddress(), Utils.computeAccuracy(beacon)));
+    }
+
+    private View inflateIfRequired(View view, int position, ViewGroup parent) {
+        if (view == null) {
+            view = inflater.inflate(R.layout.chatroom_row, parent, false);
+            view.setTag(new ViewHolder(view));
+        }
+        return view;
+    }
+
+    static class ViewHolder {
+        final TextView chatroomDescription;
+
+        ViewHolder(View view) {
+            chatroomDescription = (TextView) view.findViewById(R.id.chatroom_description);
+        }
+    }
 }
