@@ -1,5 +1,8 @@
 package uk.ac.glasgow.beaconchat.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DataAnswer extends Answer {
 	private Object data;
 
@@ -15,7 +18,5 @@ public class DataAnswer extends Answer {
 	public void setData(Object data) {
 		this.data = data;
 	}
-	
-	
 
 }

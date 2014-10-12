@@ -1,4 +1,5 @@
 package uk.ac.glasgow.beaconchat.models;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -6,7 +7,7 @@ public class ChatMessage {
 	private Message message;
 	private User user;
 	private Beacon beacon;
-	
+
 	public ChatMessage(Message msg, User user, Beacon beacon) {
 		super();
 		this.message = msg;
@@ -14,7 +15,6 @@ public class ChatMessage {
 		this.beacon = beacon;
 	}
 
-	
 	public ChatMessage() {
 		super();
 		this.message = new Message();

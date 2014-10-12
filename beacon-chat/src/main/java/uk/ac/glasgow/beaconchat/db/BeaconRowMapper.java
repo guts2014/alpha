@@ -8,10 +8,9 @@ import org.springframework.jdbc.core.RowMapper;
 import uk.ac.glasgow.beaconchat.models.Beacon;
 
 @SuppressWarnings("rawtypes")
-public class BeaconRowMapper implements RowMapper{
+public class BeaconRowMapper implements RowMapper {
 	public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-		Beacon beacon = new Beacon(rs.getString("id"),
-				rs.getString("name"));
+		Beacon beacon = new Beacon(rs.getString("id"), rs.getString("name"));
 		return beacon;
 	}
 

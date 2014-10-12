@@ -2,6 +2,9 @@ package uk.ac.glasgow.beaconchat.models;
 
 import java.util.ArrayList;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Names {
 	private ArrayList<Beacon> beacons;
 

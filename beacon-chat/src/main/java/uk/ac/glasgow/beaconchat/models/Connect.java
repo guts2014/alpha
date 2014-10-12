@@ -1,9 +1,12 @@
 package uk.ac.glasgow.beaconchat.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Connect {
 	private Beacon beacon;
 	private User user;
-	
+
 	public Connect(Beacon beacon, User user) {
 		super();
 		this.beacon = beacon;
@@ -31,11 +34,5 @@ public class Connect {
 	public void setUser(User user) {
 		this.user = user;
 	}
-	
-	
-	
-	
-	
-	
 
 }

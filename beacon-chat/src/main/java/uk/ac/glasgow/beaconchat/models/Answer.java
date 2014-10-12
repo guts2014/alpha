@@ -12,7 +12,7 @@ public class Answer {
 		this.status = status;
 		this.message = message;
 	}
-	
+
 	public Answer(String message) {
 		super();
 		this.status = "error";
