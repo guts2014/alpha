@@ -1,6 +1,7 @@
 package com.guhack.alpha.beaconchat;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.view.Menu;
@@ -22,11 +23,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URL;
+
 
 public class ChatroomActivity extends Activity {
     private String beacon, device;
     int lastMessage = 0;
     private ChatroomMessageAdapter adapter;
+    private MessageGetter messageGetter = new MessageGetter();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +89,11 @@ public class ChatroomActivity extends Activity {
                             for (int index = 0; index < messages.length(); index++){
                                 adapter.addMessage(messages.getJSONObject(index).getJSONObject("user").getString("name")
                                 + " : " + messages.getJSONObject(index).getJSONObject("message").getString("text"));
+                                lastMessage = messages.getJSONObject(index).getJSONObject("message").getInt("id");
                             }
+                                messageGetter.execute();
+
+
 
                         } catch (JSONException e){
                             //catch me
@@ -116,7 +124,7 @@ public class ChatroomActivity extends Activity {
         beaconObject.put("id", beacon);
         user.put("deviceID", device);
         user.put("name", UserManager.getInstance().getUsername());
-        filter.put("from", 1);//change to actual msg
+        filter.put("from", lastMessage);
         postdata.put("beacon", beaconObject);
         postdata.put("user", user);
         postdata.put("filter", filter);
@@ -125,9 +133,25 @@ public class ChatroomActivity extends Activity {
                 (Request.Method.POST, url, postdata, new Response.Listener<JSONObject>() {
 
                     @Override
-                    public void onResponse(JSONObject response) {
-                        String s;
-                        s = "";
+                    public void onResponse(final JSONObject response) {
+                        runOnUiThread(new Runnable(){
+                            public void run() {
+                                try {
+                                    JSONArray messages = response.getJSONArray("messages");
+                                    for (int index = 0; index < messages.length(); index++) {
+                                        adapter.addMessage(messages.getJSONObject(index).getJSONObject("user").getString("name")
+                                                + " : " + messages.getJSONObject(index).getJSONObject("message").getString("text"));
+                                        lastMessage = messages.getJSONObject(index).getJSONObject("message").getInt("id");
+                                        if (((ListView) findViewById(R.id.chatmsg_list)).getAdapter().getCount()>1){
+                                        ((ListView) findViewById(R.id.chatmsg_list)).setSelection(
+                                                ((ListView) findViewById(R.id.chatmsg_list)).getAdapter().getCount()-1);
+                                    }}
+                                }
+                                catch (JSONException e){
+
+                                }
+                            }
+                        });
                         //mTxtDisplay.setText("Response: " + response.toString());
                     }
                 }, new Response.ErrorListener() {
@@ -173,7 +197,7 @@ public class ChatroomActivity extends Activity {
         postdata.put("user", user);
         postdata.put("message", messageObject);
 
-        adapter.addMessage(UserManager.getInstance().getUsername() + " : "  + message);
+       // adapter.addMessage(UserManager.getInstance().getUsername() + " : "  + message);
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.POST, url, postdata, new Response.Listener<JSONObject>() {
 
@@ -194,5 +218,58 @@ public class ChatroomActivity extends Activity {
                 });
 // Add the request to the RequestQueue.
         queue.add(jsObjRequest);
+    }
+
+    private class MessageGetter extends AsyncTask<URL, Integer, Long> {
+        public boolean run;
+        protected Long doInBackground(URL... urls) {
+            run = true;
+          while (run) {
+              try {
+                  getMessages();
+              } catch (JSONException e){
+
+              }
+              try {
+                  synchronized (this) {
+                      wait(5000);
+                  }
+              } catch (InterruptedException e){
+
+              }
+
+
+            }
+            return null;
+        }
+//
+//        protected void onProgressUpdate(Integer... progress) {
+//            setProgressPercent(progress[0]);
+//        }
+//
+//        protected void onPostExecute(Long result) {
+//            showDialog("Downloaded " + result + " bytes");
+//        }
+
+
+        @Override
+        protected void onCancelled() {
+            run = false;
+            super.onCancelled();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        messageGetter.run = false;
+        messageGetter.cancel(true);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        messageGetter.run = false;
+        messageGetter.cancel(true);
+        super.onBackPressed();
     }
 }

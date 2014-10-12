@@ -52,8 +52,7 @@
             android:name=".ChatroomActivity"
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:screenOrientation="portrait"
-            android:label="@string/title_activity_chatroom"
-            android:launchMode="singleTop">
+            android:label="@string/title_activity_chatroom">
         </activity>
     </application>
 
