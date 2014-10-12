@@ -4,9 +4,10 @@ CREATE TABLE Beacon (
 );
 
 CREATE TABLE User (
-    id INT PRIMARY KEY, 
+    deviceID VARCHAR(128) NOT NULL, 
     name VARCHAR(32) NOT NULL,
-	email VARCHAR(128) 
+	email VARCHAR(128),
+	PRIMARY KEY(deviceID, name)
 );
 
 CREATE TABLE Message (
@@ -15,13 +16,15 @@ CREATE TABLE Message (
 	time TIMESTAMP NOT NULL
 );
 
-CREATE TABLE BeaconUsers (
-    beaconid VARCHAR(64) REFERENCES Beacon(id), 
-	userid INT REFERENCES User(id)
+CREATE TABLE BeaconMessages(
+    beaconID VARCHAR(64) REFERENCES Beacon(id), 
+	msgID INT REFERENCES Message(id),
+	PRIMARY KEY(msgID, beaconid)
 );
 
 CREATE TABLE UserMessages (
-    userid INT REFERENCES User(id), 
-    msgid INT REFERENCES Message(id), 
-    PRIMARY KEY(userid, msgid)
+    deviceID VARCHAR(128) REFERENCES User(id),
+    name VARCHAR(32) REFERENCES User(id), 
+    msgID INT REFERENCES Message(id), 
+    PRIMARY KEY(deviceID, name, msgID)
 );

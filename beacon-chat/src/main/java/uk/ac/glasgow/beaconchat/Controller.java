@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -16,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -53,7 +53,10 @@ public class Controller {
 			+ "AND u.name = um.name "
 			+ "AND b.id = bm.beaconid "
 			+ "AND m.id = um.msgid "
-			+ "AND m.id = bm.msgid " + "AND time > ? " + "AND beaconid = ?";
+			+ "AND m.id = bm.msgid "
+			+ "AND time > ? "
+			+ "AND beaconid = ? "
+			+ "ORDER BY m.id ASC";
 	private static final String GET_NEW_MESSAGES = "SELECT u.deviceID, u.name, email, um.msgid, text, time, beaconID "
 			+ "FROM User u, Message m, UserMessages um, Beacon b, BeaconMessages bm "
 			+ "WHERE u.deviceID = um.deviceID "
@@ -107,17 +110,19 @@ public class Controller {
 
 	@Transactional
 	@RequestMapping(value = "/names", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String, Beacon> checkBeacons(
-			@RequestBody Names names) {
+	public Map<String, Beacon> checkBeacons(@RequestBody Names names) {
 		ArrayList<Beacon> beacons = names.getBeacons();
 		HashMap<String, Beacon> result = new HashMap<String, Beacon>();
 		for (Beacon beacon : beacons) {
 			String id = beacon.getId();
-			String name = jdbcTemplate.queryForObject(GET_BEACON_NAME,
-					new Object[] { id }, String.class);
-			if (name != null) {
+			String name;
+			try {
+				name = jdbcTemplate.queryForObject(GET_BEACON_NAME,
+						new Object[] { id }, String.class);
 				beacon.setName(name);
 				result.put(id, beacon);
+			} catch (IncorrectResultSizeDataAccessException e) {
+				// oh well
 			}
 		}
 		return result;
@@ -126,8 +131,8 @@ public class Controller {
 	@SuppressWarnings("unchecked")
 	@Transactional
 	@RequestMapping(value = "/connect", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public List<ChatMessage> connect(@RequestBody Connect connect,
-			HttpServletResponse response) {
+	public Map<String, ArrayList<ChatMessage>> connect(
+			@RequestBody Connect connect, HttpServletResponse response) {
 		try {
 			jdbcTemplate
 					.update(ADD_USER, new Object[] {
@@ -137,25 +142,33 @@ public class Controller {
 		} catch (DataAccessException e) {
 			// ignore
 		}
-		return (ArrayList<ChatMessage>) jdbcTemplate.query(
-				GET_MESSAGES,
-				new Object[] {
-						DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").print(
-								new DateTime().minusMinutes(1)),
-						connect.getBeacon().getId() },
-				new ChatMessageRowMapper());
+		ArrayList<ChatMessage> list = (ArrayList<ChatMessage>) jdbcTemplate
+				.query(GET_MESSAGES,
+						new Object[] {
+								DateTimeFormat
+										.forPattern("YYYY-MM-dd HH:mm:ss")
+										.print(new DateTime().minusMinutes(1)),
+								connect.getBeacon().getId() },
+						new ChatMessageRowMapper());
+		HashMap<String, ArrayList<ChatMessage>> result = new HashMap<String, ArrayList<ChatMessage>>();
+		result.put("messages", list);
+		return result;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Transactional
 	@RequestMapping(value = "/messages", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public List<ChatMessage> messages(@RequestBody Messages messages,
-			HttpServletResponse response) {
+	public Map<String, ArrayList<ChatMessage>> messages(
+			@RequestBody Messages messages, HttpServletResponse response) {
 
-		return (ArrayList<ChatMessage>) jdbcTemplate.query(GET_NEW_MESSAGES,
-				new Object[] { messages.getFilter().getFrom(),
+		ArrayList<ChatMessage> list = (ArrayList<ChatMessage>) jdbcTemplate
+				.query(GET_NEW_MESSAGES, new Object[] {
+						messages.getFilter().getFrom(),
 						messages.getBeacon().getId() },
-				new ChatMessageRowMapper());
+						new ChatMessageRowMapper());
+		HashMap<String, ArrayList<ChatMessage>> result = new HashMap<String, ArrayList<ChatMessage>>();
+		result.put("messages", list);
+		return result;
 
 	}
 

@@ -9,20 +9,20 @@ public class Message {
 
 	private int id;
 	private String text;
-	private DateTime dt;
+	private long timestamp;
 
 	public Message(int id, String text, DateTime dt) {
 		super();
 		this.id = id;
 		this.text = text;
-		this.dt = dt;
+		this.timestamp = dt.getMillis();
 	}
 
 	public Message() {
 		super();
 		this.id = 0;
 		this.text = "";
-		this.dt = new DateTime();
+		this.timestamp = new DateTime().getMillis();
 		;
 	}
 
@@ -42,12 +42,12 @@ public class Message {
 		this.text = text;
 	}
 
-	public DateTime getDt() {
-		return dt;
+	public long getTimestamp() {
+		return timestamp;
 	}
 
-	public void setDt(DateTime dt) {
-		this.dt = dt;
+	public void setDt(long timestamp) {
+		this.timestamp = timestamp;
 	}
 
 }
