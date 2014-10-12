@@ -46,7 +46,7 @@ public class Message {
 		return timestamp;
 	}
 
-	public void setDt(long timestamp) {
+	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
 
