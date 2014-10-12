@@ -32,6 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -45,6 +46,7 @@ public class ChatroomListActivity extends Activity {
 
     private BeaconManager beaconManager;
     private ChatroomListAdapter adapter;
+    private View progress;
 
     private boolean send = true;
 
@@ -53,7 +55,7 @@ public class ChatroomListActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatroom_list);
 
-
+        progress = findViewById(R.id.chat_list_progress);
         ((TextView) findViewById(R.id.chatroom_list_username)).setText(UserManager.getInstance().getUsername());
         findViewById(R.id.logout_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,7 +70,12 @@ public class ChatroomListActivity extends Activity {
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                startActivity(new Intent(ChatroomListActivity.this, ChatroomActivity.class));
+                Intent intent = new Intent(ChatroomListActivity.this, ChatroomActivity.class);
+                Chatroom room = adapter.getItem(i);
+                intent.putExtra("NAME", room.getName());
+                intent.putExtra("ID", room.getId());
+                startActivity(intent);
+                //startActivity(new Intent(ChatroomListActivity.this, ChatroomActivity.class));
             }
         });
 
@@ -88,7 +95,6 @@ public class ChatroomListActivity extends Activity {
                             send = false;
                             findChatrooms(beacons);
                         }
-                        adapter.replaceWith(beacons);
                     }
                 });
             }
@@ -147,7 +153,7 @@ public class ChatroomListActivity extends Activity {
 
     private void connectToService() {
 
-        adapter.replaceWith(Collections.<Beacon>emptyList());
+//        adapter.replaceWith(Collections.<Beacon>emptyList());
         beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
             @Override
             public void onServiceReady() {
@@ -162,24 +168,6 @@ public class ChatroomListActivity extends Activity {
         });
     }
 
-    private AdapterView.OnItemClickListener createOnItemClickListener() {
-        return new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (getIntent().getStringExtra(EXTRAS_TARGET_ACTIVITY) != null) {
-                    try {
-                        Class<?> clazz = Class.forName(getIntent().getStringExtra(EXTRAS_TARGET_ACTIVITY));
-                        Intent intent = new Intent(ChatroomListActivity.this, clazz);
-                        intent.putExtra(EXTRAS_BEACON, adapter.getItem(position));
-                        startActivity(intent);
-                    } catch (ClassNotFoundException e) {
-                        //   Log.e(TAG, "Finding class by name failed", e);
-                    }
-                }
-            }
-        };
-    }
-
     public void findChatrooms(List<Beacon> beacons) {
         JSONArray array = new JSONArray();
         try {
@@ -191,7 +179,7 @@ public class ChatroomListActivity extends Activity {
                     /*"{\"beacons\":[{\"id\":\"c0:82:62:85:8e:ae\"}, {\"id\":\"ec:8f:96:10:f1:30\"}]}"
                     */);
 
-           postData.put("beacons", array);
+            postData.put("beacons", array);
             Log.i("array", postData.toString());
 
             // Instantiate the RequestQueue.
@@ -203,8 +191,8 @@ public class ChatroomListActivity extends Activity {
 
                         @Override
                         public void onResponse(JSONObject response) {
-                            String s;
-                            s = "";
+                            adapter.replaceWith(response);
+                            progress.setVisibility(View.INVISIBLE);
                             //mTxtDisplay.setText("Response: " + response.toString());
                         }
                     }, new Response.ErrorListener() {
@@ -222,5 +210,11 @@ public class ChatroomListActivity extends Activity {
             //do something
         }
 
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        progress.setVisibility(View.VISIBLE);
     }
 }
