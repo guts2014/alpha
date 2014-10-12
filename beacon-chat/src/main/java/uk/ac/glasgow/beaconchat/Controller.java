@@ -160,6 +160,9 @@ public class Controller {
 	@RequestMapping(value = "/messages", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String, ArrayList<ChatMessage>> messages(
 			@RequestBody Messages messages, HttpServletResponse response) {
+		if (messages.getFilter().getFrom() == 0){
+			return connect(new Connect (messages.getBeacon(), messages.getUser()), response);
+		}
 
 		ArrayList<ChatMessage> list = (ArrayList<ChatMessage>) jdbcTemplate
 				.query(GET_NEW_MESSAGES, new Object[] {
