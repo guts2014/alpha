@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ import uk.ac.glasgow.beaconchat.models.Beacon;
 import uk.ac.glasgow.beaconchat.models.ChatMessage;
 import uk.ac.glasgow.beaconchat.models.Connect;
 import uk.ac.glasgow.beaconchat.models.Messages;
+import uk.ac.glasgow.beaconchat.models.Names;
 
 @RestController
 public class Controller {
@@ -43,28 +45,25 @@ public class Controller {
 	private static final String ADD_BEACON_MSG = "INSERT INTO BeaconMessages (msgID, beaconid)"
 			+ "VALUES (?, ?)";
 	private static final String INSERT_MSG = "INSERT INTO Message (text) VALUES (?)";
-	private static final String GET_BEACON_NAME = 
-			"SELECT name "
-			+ "FROM Beacon "
-			+ "WHERE lower(id) = lower(?)";
+	private static final String GET_BEACON_NAME = "SELECT name "
+			+ "FROM Beacon " + "WHERE lower(id) = lower(?)";
 	private static final String GET_MESSAGES = "SELECT u.deviceID, u.name, email, um.msgid, text, time, beaconID "
 			+ "FROM User u, Message m, UserMessages um, Beacon b, BeaconMessages bm "
 			+ "WHERE u.deviceID = um.deviceID "
 			+ "AND u.name = um.name "
 			+ "AND b.id = bm.beaconid "
 			+ "AND m.id = um.msgid "
-			+ "AND m.id = bm.msgid "
-			+ "AND time > ? "
-			+ "AND beacon.id = ?";
-	private static final String GET_NEW_MESSAGES = "SELECT u.deviceID, u.name as username, email, um.msgid, text, time, beaconID "
+			+ "AND m.id = bm.msgid " + "AND time > ? " + "AND beaconid = ?";
+	private static final String GET_NEW_MESSAGES = "SELECT u.deviceID, u.name, email, um.msgid, text, time, beaconID "
 			+ "FROM User u, Message m, UserMessages um, Beacon b, BeaconMessages bm "
 			+ "WHERE u.deviceID = um.deviceID "
 			+ "AND u.name = um.name "
 			+ "AND b.id = bm.beaconid "
 			+ "AND m.id = um.msgid "
 			+ "AND m.id = bm.msgid "
-			+ "AND m.id > ? "
-			+ "AND beaconid = ?";
+			+ "AND m.id	> ? "
+			+ "AND beaconid = ? "
+			+ "ORDER BY m.id ASC";
 	private static final String ADD_USER = "INSERT INTO User (deviceID, name, email)"
 			+ "VALUES (?, ?, ?)";;
 
@@ -96,8 +95,8 @@ public class Controller {
 			int id = keyHolder.getKey().intValue();
 			jdbcTemplate.update(ADD_USER_MSG, new Object[] {
 					msg.getUser().getDeviceID(), msg.getUser().getName(), id });
-			jdbcTemplate.update(ADD_BEACON_MSG, new Object[] {
-					id, msg.getBeacon().getId() });
+			jdbcTemplate.update(ADD_BEACON_MSG, new Object[] { id,
+					msg.getBeacon().getId() });
 			answer = new Answer();
 		} catch (DataAccessException e) {
 			answer = new Answer(e.getMessage());
@@ -108,14 +107,14 @@ public class Controller {
 
 	@Transactional
 	@RequestMapping(value = "/names", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String, Beacon> checkBeacons(@RequestBody ArrayList<Beacon> beacons) {
+	public Map<String, Beacon> checkBeacons(
+			@RequestBody Names names) {
+		ArrayList<Beacon> beacons = names.getBeacons();
 		HashMap<String, Beacon> result = new HashMap<String, Beacon>();
 		for (Beacon beacon : beacons) {
 			String id = beacon.getId();
-			String name = jdbcTemplate.queryForObject(GET_BEACON_NAME, new Object[]{id},
-					String.class);// jdbcTemplate get name
-			System.out.printf("LOGGGGG %s %s %s\n",GET_BEACON_NAME, id, name);
-			logger.error("LOGGGGG {} {} {}", GET_BEACON_NAME, id, name);
+			String name = jdbcTemplate.queryForObject(GET_BEACON_NAME,
+					new Object[] { id }, String.class);
 			if (name != null) {
 				beacon.setName(name);
 				result.put(id, beacon);
@@ -129,30 +128,39 @@ public class Controller {
 	@RequestMapping(value = "/connect", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public List<ChatMessage> connect(@RequestBody Connect connect,
 			HttpServletResponse response) {
-		ArrayList<ChatMessage> result;
 		try {
-			jdbcTemplate.update(ADD_USER, new Object[] {connect.getUser().getDeviceID(), connect.getUser().getName(), connect.getUser().getEmail()});
-		} catch (DataAccessException e){
-			//ignore
+			jdbcTemplate
+					.update(ADD_USER, new Object[] {
+							connect.getUser().getDeviceID(),
+							connect.getUser().getName(),
+							connect.getUser().getEmail() });
+		} catch (DataAccessException e) {
+			// ignore
 		}
-		result = (ArrayList<ChatMessage>) jdbcTemplate.query(GET_MESSAGES, new Object[] {(new DateTime()).getMillis(), connect.getBeacon().getId()}, new ChatMessageRowMapper());
-		return result;
+		return (ArrayList<ChatMessage>) jdbcTemplate.query(
+				GET_MESSAGES,
+				new Object[] {
+						DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").print(
+								new DateTime().minusMinutes(1)),
+						connect.getBeacon().getId() },
+				new ChatMessageRowMapper());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Transactional
 	@RequestMapping(value = "/messages", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public List<ChatMessage> messages(@RequestBody Messages messages, HttpServletResponse response) {
-		
+	public List<ChatMessage> messages(@RequestBody Messages messages,
+			HttpServletResponse response) {
 
-		ArrayList<ChatMessage> result;
-		result = (ArrayList<ChatMessage>) jdbcTemplate.query(GET_NEW_MESSAGES, new Object[] {messages.getFilter().getFrom(), messages.getBeacon().getId()}, new ChatMessageRowMapper());
+		return (ArrayList<ChatMessage>) jdbcTemplate.query(GET_NEW_MESSAGES,
+				new Object[] { messages.getFilter().getFrom(),
+						messages.getBeacon().getId() },
+				new ChatMessageRowMapper());
 
-		return result;
 	}
 
 	@RequestMapping(value = "/error", method = RequestMethod.GET)
-	public Answer checkBeacons(HttpServletResponse response) {
+	public Answer error(HttpServletResponse response) {
 		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		return new Answer("error", "woops, something went wrong");
 	}
