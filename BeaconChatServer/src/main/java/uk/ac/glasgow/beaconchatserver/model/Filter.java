@@ -6,40 +6,40 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Filter {
-	private DateTime since;
+	private long since;
 	private int from;
 	private int to;
 
-	public Filter(DateTime since, int from, int to) {
+	public Filter() {
+		super();
+		this.since = new DateTime().minusSeconds(60).getMillis();
+	}
+
+	public Filter(long since, int from, int to) {
 		super();
 		this.since = since;
 		this.from = from;
 		this.to = to;
 	}
 
-	public Filter() {
-		super();
-		this.since = new DateTime().minusSeconds(60);
+	public int getFrom() {
+		return from;
 	}
 
-	public DateTime getSince() {
+	public long getSince() {
 		return since;
 	}
 
-	public void setSince(DateTime since) {
-		this.since = since;
-	}
-
-	public int getFrom() {
-		return from;
+	public int getTo() {
+		return to;
 	}
 
 	public void setFrom(int from) {
 		this.from = from;
 	}
 
-	public int getTo() {
-		return to;
+	public void setSince(long since) {
+		this.since = since;
 	}
 
 	public void setTo(int to) {

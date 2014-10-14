@@ -11,39 +11,39 @@ import org.springframework.transaction.annotation.TransactionManagementConfigure
 
 @PropertySource("classpath:jdbc.properties")
 public class SpringDataConfig implements TransactionManagementConfigurer {
-	
-	@Value("${jdbc.driverClassName}") 
-	private String driverClassName;
-	@Value("${jdbc.url}")             
-	private String dbUrl;
-	@Value("${jdbc.username}")        
-	private String dbUserName;
-	@Value("${jdbc.password}")        
-	private String dbPassword;
 
-	@Bean
-	public BasicDataSource dataSource() {
-	 BasicDataSource dataSource = new BasicDataSource();
-	 dataSource.setDriverClassName(driverClassName);
-	 dataSource.setUrl(dbUrl);
-	 dataSource.setUsername(dbUserName);
-	 dataSource.setPassword(dbPassword);
-	 dataSource.setMaxActive(10);
-	 dataSource.setMaxIdle(10);
-	 return dataSource;
-	}
-	
-	@Bean
-	public JdbcTemplate jdbcTemplate(){
-		return new JdbcTemplate(dataSource());
-	}
-	
-    @Bean
-    public PlatformTransactionManager txManager() {
-        return new DataSourceTransactionManager(dataSource());
-    }
+	@Value("${jdbc.driverClassName}")
+	private String driverClassName;
+	@Value("${jdbc.url}")
+	private String dbUrl;
+	@Value("${jdbc.username}")
+	private String dbUserName;
+	@Value("${jdbc.password}")
+	private String dbPassword;
 
 	public PlatformTransactionManager annotationDrivenTransactionManager() {
 		return txManager();
+	}
+
+	@Bean
+	public BasicDataSource dataSource() {
+		BasicDataSource dataSource = new BasicDataSource();
+		dataSource.setDriverClassName(driverClassName);
+		dataSource.setUrl(dbUrl);
+		dataSource.setUsername(dbUserName);
+		dataSource.setPassword(dbPassword);
+		dataSource.setMaxActive(10);
+		dataSource.setMaxIdle(10);
+		return dataSource;
+	}
+
+	@Bean
+	public JdbcTemplate jdbcTemplate() {
+		return new JdbcTemplate(dataSource());
+	}
+
+	@Bean
+	public PlatformTransactionManager txManager() {
+		return new DataSourceTransactionManager(dataSource());
 	}
 }

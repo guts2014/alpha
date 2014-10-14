@@ -17,25 +17,25 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Import({ SpringDataConfig.class, ThymeleafConfig.class })
 public class Config extends WebMvcConfigurerAdapter {
 
+	@Bean
+	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+		return new PropertySourcesPlaceholderConfigurer();
+	}
+
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		/*
-		registry.addResourceHandler("/resources/**").addResourceLocations(
-				"/WEB-INF/resources/");
+		 * registry.addResourceHandler("/resources/**").addResourceLocations(
+		 * "/WEB-INF/resources/");
 		 */
-		
+
 		registry.addResourceHandler("/static/**").addResourceLocations(
 				"/WEB-INF/resources/static/");
-		
+
 		if (!registry.hasMappingForPattern("/webjars/**")) {
 			registry.addResourceHandler("/webjars/**").addResourceLocations(
 					"classpath:/META-INF/resources/webjars/");
 		}
-	}
-
-	@Bean
-	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-		return new PropertySourcesPlaceholderConfigurer();
 	}
 
 }

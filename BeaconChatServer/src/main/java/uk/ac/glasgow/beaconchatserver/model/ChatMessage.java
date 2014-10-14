@@ -8,13 +8,6 @@ public class ChatMessage {
 	private User user;
 	private Beacon beacon;
 
-	public ChatMessage(Message msg, User user, Beacon beacon) {
-		super();
-		this.message = msg;
-		this.user = user;
-		this.beacon = beacon;
-	}
-
 	public ChatMessage() {
 		super();
 		this.message = new Message();
@@ -22,28 +15,35 @@ public class ChatMessage {
 		this.beacon = new Beacon();
 	}
 
-	public Message getMessage() {
-		return message;
-	}
-
-	public void setMessage(Message msg) {
+	public ChatMessage(Message msg, User user, Beacon beacon) {
+		super();
 		this.message = msg;
-	}
-
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
 		this.user = user;
+		this.beacon = beacon;
 	}
 
 	public Beacon getBeacon() {
 		return beacon;
 	}
 
+	public Message getMessage() {
+		return message;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
 	public void setBeacon(Beacon beacon) {
 		this.beacon = beacon;
+	}
+
+	public void setMessage(Message msg) {
+		this.message = msg;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 }

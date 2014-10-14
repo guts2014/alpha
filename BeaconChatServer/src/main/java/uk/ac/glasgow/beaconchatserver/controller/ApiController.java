@@ -3,8 +3,8 @@ package uk.ac.glasgow.beaconchatserver.controller;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -36,10 +36,10 @@ import uk.ac.glasgow.beaconchatserver.model.Names;
 import uk.ac.glasgow.beaconchatserver.rowmapper.ChatMessageRowMapper;
 
 @RestController
-@RequestMapping(value = {"/api", "/"}) //legacy support
+@RequestMapping(value = { "/api", "/" })
+// legacy support
 public class ApiController {
-	final static Logger logger = LoggerFactory
-			.getLogger(ApiController.class);
+	final static Logger logger = LoggerFactory.getLogger(ApiController.class);
 
 	private static final String ADD_USER_MSG = "INSERT INTO UserMessages (deviceID, name, msgID)"
 			+ "VALUES (?, ?, ?)";
@@ -75,6 +75,78 @@ public class ApiController {
 	private JdbcTemplate jdbcTemplate;
 
 	@Transactional
+	@RequestMapping(value = "/names", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String, Beacon> checkBeacons(@RequestBody Names names) {
+		List<Beacon> beacons = names.getBeacons();
+		Map<String, Beacon> result = new HashMap<String, Beacon>();
+		for (Beacon beacon : beacons) {
+			String id = beacon.getId();
+			String name;
+			try {
+				name = jdbcTemplate.queryForObject(GET_BEACON_NAME,
+						new Object[] { id }, String.class);
+				beacon.setName(name);
+				result.put(id, beacon);
+			} catch (IncorrectResultSizeDataAccessException e) {
+				// oh well
+			}
+		}
+		return result;
+	}
+
+	@Transactional
+	@RequestMapping(value = "/connect", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String, List<ChatMessage>> connect(@RequestBody Connect connect,
+			HttpServletResponse response) {
+		try {
+			jdbcTemplate
+					.update(ADD_USER, new Object[] {
+							connect.getUser().getDeviceID(),
+							connect.getUser().getName(),
+							connect.getUser().getEmail() });
+		} catch (DataAccessException e) {
+			// ignore
+		}
+		List<ChatMessage> list = jdbcTemplate.query(
+				GET_MESSAGES,
+				new Object[] {
+						DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss").print(
+								new DateTime().minusMinutes(1)),
+						connect.getBeacon().getId() },
+				new ChatMessageRowMapper());
+		HashMap<String, List<ChatMessage>> result = new HashMap<String, List<ChatMessage>>();
+		result.put("messages", list);
+		return result;
+	}
+
+	@RequestMapping(value = "/error", method = RequestMethod.GET)
+	public Answer error(HttpServletResponse response) {
+		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		return new Answer("error", "woops, something went wrong");
+	}
+
+	@Transactional
+	@RequestMapping(value = "/messages", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String, List<ChatMessage>> messages(
+			@RequestBody Messages messages, HttpServletResponse response) {
+
+		if (messages.getFilter().getFrom() == 0) {
+			return connect(
+					new Connect(messages.getBeacon(), messages.getUser()),
+					response);
+		}
+
+		List<ChatMessage> list = jdbcTemplate.query(GET_NEW_MESSAGES,
+				new Object[] { messages.getFilter().getFrom(),
+						messages.getBeacon().getId() },
+				new ChatMessageRowMapper());
+		Map<String, List<ChatMessage>> result = new HashMap<String, List<ChatMessage>>();
+		result.put("messages", list);
+		return result;
+
+	}
+
+	@Transactional
 	@RequestMapping(value = "/send", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Answer sendMessage(@RequestBody final ChatMessage msg,
 			HttpServletResponse response) {
@@ -101,82 +173,6 @@ public class ApiController {
 		}
 		return answer;
 
-	}
-
-	@Transactional
-	@RequestMapping(value = "/names", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String, Beacon> checkBeacons(@RequestBody Names names) {
-		ArrayList<Beacon> beacons = names.getBeacons();
-		HashMap<String, Beacon> result = new HashMap<String, Beacon>();
-		for (Beacon beacon : beacons) {
-			String id = beacon.getId();
-			String name;
-			try {
-				name = jdbcTemplate.queryForObject(GET_BEACON_NAME,
-						new Object[] { id }, String.class);
-				beacon.setName(name);
-				result.put(id, beacon);
-			} catch (IncorrectResultSizeDataAccessException e) {
-				// oh well
-			}
-		}
-		return result;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Transactional
-	@RequestMapping(value = "/connect", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String, ArrayList<ChatMessage>> connect(
-			@RequestBody Connect connect, HttpServletResponse response) {
-		try {
-			jdbcTemplate
-					.update(ADD_USER, new Object[] {
-							connect.getUser().getDeviceID(),
-							connect.getUser().getName(),
-							connect.getUser().getEmail() });
-		} catch (DataAccessException e) {
-			// ignore
-		}
-		ArrayList<ChatMessage> list = (ArrayList<ChatMessage>) jdbcTemplate
-				.query(GET_MESSAGES,
-						new Object[] {
-								DateTimeFormat
-										.forPattern("YYYY-MM-dd HH:mm:ss")
-										.print(new DateTime().minusMinutes(1)),
-								connect.getBeacon().getId() },
-						new ChatMessageRowMapper());
-		HashMap<String, ArrayList<ChatMessage>> result = new HashMap<String, ArrayList<ChatMessage>>();
-		result.put("messages", list);
-		return result;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Transactional
-	@RequestMapping(value = "/messages", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String, ArrayList<ChatMessage>> messages(
-			@RequestBody Messages messages, HttpServletResponse response) {
-
-		if (messages.getFilter().getFrom() == 0) {
-			return connect(
-					new Connect(messages.getBeacon(), messages.getUser()),
-					response);
-		}
-
-		ArrayList<ChatMessage> list = (ArrayList<ChatMessage>) jdbcTemplate
-				.query(GET_NEW_MESSAGES, new Object[] {
-						messages.getFilter().getFrom(),
-						messages.getBeacon().getId() },
-						new ChatMessageRowMapper());
-		HashMap<String, ArrayList<ChatMessage>> result = new HashMap<String, ArrayList<ChatMessage>>();
-		result.put("messages", list);
-		return result;
-
-	}
-
-	@RequestMapping(value = "/error", method = RequestMethod.GET)
-	public Answer error(HttpServletResponse response) {
-		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		return new Answer("error", "woops, something went wrong");
 	}
 
 }

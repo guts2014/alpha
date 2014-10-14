@@ -9,13 +9,6 @@ public class Messages {
 	private Beacon beacon;
 	private Filter filter;
 
-	public Messages(User user, Beacon beacon, Filter filter) {
-		super();
-		this.user = user;
-		this.beacon = beacon;
-		this.filter = filter;
-	}
-
 	public Messages() {
 		super();
 		this.user = new User();
@@ -23,28 +16,35 @@ public class Messages {
 		this.filter = new Filter();
 	}
 
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
+	public Messages(User user, Beacon beacon, Filter filter) {
+		super();
 		this.user = user;
+		this.beacon = beacon;
+		this.filter = filter;
 	}
 
 	public Beacon getBeacon() {
 		return beacon;
 	}
 
-	public void setBeacon(Beacon beacon) {
-		this.beacon = beacon;
-	}
-
 	public Filter getFilter() {
 		return filter;
 	}
 
+	public User getUser() {
+		return user;
+	}
+
+	public void setBeacon(Beacon beacon) {
+		this.beacon = beacon;
+	}
+
 	public void setFilter(Filter filter) {
 		this.filter = filter;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 }

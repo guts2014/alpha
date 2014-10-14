@@ -11,10 +11,9 @@ import uk.ac.glasgow.beaconchatserver.model.ChatMessage;
 import uk.ac.glasgow.beaconchatserver.model.Message;
 import uk.ac.glasgow.beaconchatserver.model.User;
 
-@SuppressWarnings("rawtypes")
-public class ChatMessageRowMapper implements RowMapper {
+public class ChatMessageRowMapper implements RowMapper<ChatMessage> {
 
-	public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+	public ChatMessage mapRow(ResultSet rs, int rowNum) throws SQLException {
 		Beacon beacon = new Beacon(rs.getString("beaconID"));
 
 		Message msg = new Message(rs.getInt("msgID"), rs.getString("text"),

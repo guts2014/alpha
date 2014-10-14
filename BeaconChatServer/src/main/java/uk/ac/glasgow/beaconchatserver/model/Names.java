@@ -1,28 +1,29 @@
 package uk.ac.glasgow.beaconchatserver.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Names {
-	private ArrayList<Beacon> beacons;
-
-	public Names(ArrayList<Beacon> beacons) {
-		super();
-		this.beacons = beacons;
-	}
+	private List<Beacon> beacons;
 
 	public Names() {
 		super();
 		this.beacons = new ArrayList<Beacon>();
 	}
 
-	public ArrayList<Beacon> getBeacons() {
+	public Names(List<Beacon> beacons) {
+		super();
+		this.beacons = beacons;
+	}
+
+	public List<Beacon> getBeacons() {
 		return beacons;
 	}
 
-	public void setBeacons(ArrayList<Beacon> beacons) {
+	public void setBeacons(List<Beacon> beacons) {
 		this.beacons = beacons;
 	}
 

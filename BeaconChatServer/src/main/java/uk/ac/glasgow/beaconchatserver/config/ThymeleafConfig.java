@@ -10,6 +10,13 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 public class ThymeleafConfig {
 
 	@Bean
+	public SpringTemplateEngine templateEngine() {
+		SpringTemplateEngine engine = new SpringTemplateEngine();
+		engine.setTemplateResolver(templateResolver());
+		return engine;
+	}
+
+	@Bean
 	public ServletContextTemplateResolver templateResolver() {
 		ServletContextTemplateResolver resolver = new ServletContextTemplateResolver();
 		resolver.setPrefix("/WEB-INF/views/");
@@ -17,13 +24,6 @@ public class ThymeleafConfig {
 		resolver.setTemplateMode("HTML5");
 		resolver.setOrder(1);
 		return resolver;
-	}
-
-	@Bean
-	public SpringTemplateEngine templateEngine() {
-		SpringTemplateEngine engine = new SpringTemplateEngine();
-		engine.setTemplateResolver(templateResolver());
-		return engine;
 	}
 
 	@Bean

@@ -12,11 +12,11 @@ public class User {
 		super();
 	}
 
-	public User(String deviceID, String name, String email) {
+	public User(String name) {
 		super();
-		this.deviceID = deviceID;
+		this.deviceID = "";
 		this.name = name;
-		this.email = email;
+		this.email = "";
 	}
 
 	public User(String name, String email) {
@@ -26,35 +26,35 @@ public class User {
 		this.email = email;
 	}
 
-	public User(String name) {
+	public User(String deviceID, String name, String email) {
 		super();
-		this.deviceID = "";
+		this.deviceID = deviceID;
 		this.name = name;
-		this.email = "";
+		this.email = email;
 	}
 
 	public String getDeviceID() {
 		return deviceID;
 	}
 
-	public void setDeviceID(String deviceID) {
-		this.deviceID = deviceID;
+	public String getEmail() {
+		return email;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getEmail() {
-		return email;
+	public void setDeviceID(String deviceID) {
+		this.deviceID = deviceID;
 	}
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }

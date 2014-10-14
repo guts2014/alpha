@@ -11,13 +11,6 @@ public class Message {
 	private String text;
 	private long timestamp;
 
-	public Message(int id, String text, DateTime dt) {
-		super();
-		this.id = id;
-		this.text = text;
-		this.timestamp = dt.getMillis();
-	}
-
 	public Message() {
 		super();
 		this.id = 0;
@@ -26,24 +19,31 @@ public class Message {
 		;
 	}
 
-	public int getId() {
-		return id;
+	public Message(int id, String text, DateTime dt) {
+		super();
+		this.id = id;
+		this.text = text;
+		this.timestamp = dt.getMillis();
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public int getId() {
+		return id;
 	}
 
 	public String getText() {
 		return text;
 	}
 
-	public void setText(String text) {
-		this.text = text;
-	}
-
 	public long getTimestamp() {
 		return timestamp;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public void setText(String text) {
+		this.text = text;
 	}
 
 	public void setTimestamp(long timestamp) {

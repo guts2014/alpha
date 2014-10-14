@@ -12,18 +12,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 @RequestMapping("/")
 public class WebController {
-	
-	final static Logger logger = LoggerFactory
-			.getLogger(WebController.class);
-	
-	@RequestMapping(method = RequestMethod.GET)
-	public String home(Model model) {
-		model.addAttribute("title", "Beacon chat");
-		return "index";
-	}
+
+	final static Logger logger = LoggerFactory.getLogger(WebController.class);
 
 	@RequestMapping(value = "error", method = RequestMethod.GET)
 	public String error(HttpServletResponse response) {
 		return "error";
+	}
+
+	@RequestMapping(method = RequestMethod.GET)
+	public String home(Model model) {
+		model.addAttribute("title", "Beacon chat");
+		return "index";
 	}
 }

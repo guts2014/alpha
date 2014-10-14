@@ -12,27 +12,27 @@ public class Beacon {
 		super();
 	}
 
+	public Beacon(String id) {
+		super();
+		this.id = id;
+	}
+
 	public Beacon(String id, String name) {
 		super();
 		this.id = id;
 		this.name = name;
 	}
 
-	public Beacon(String id) {
-		super();
-		this.id = id;
-	}
-
 	public String getId() {
 		return id;
 	}
 
-	public void setId(String id) {
-		this.id = id;
-	}
-
 	public String getName() {
 		return name;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public void setName(String name) {
